@@ -1,0 +1,102 @@
+body {
+    padding: 0;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif
+}
+
+
+/* Navigation Bar */
+
+nav {
+    display: flex;
+    background-color: yellow;
+    color: red;
+}
+
+nav img {
+    margin-left: 1rem;
+    object-fit: contain;
+}
+
+nav .titleNav {
+    display: block;
+}
+
+nav .titleNav h1:nth-child(1) {
+    margin-left: 2rem;
+    font-weight: bold;
+    color: red;
+}
+
+nav .titleNav h1:nth-child(2) {
+    margin-left: 2rem;
+    font-weight: bold;
+    color: black;
+    font-style: italic;
+}
+
+nav .days {
+    margin-left: 70%;
+    color: black;
+    font-style: italic;
+}
+
+
+/* Playground */
+
+.playground {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 22.1rem;
+}
+
+form {
+    width: min-content;
+}
+
+fieldset {
+    display: grid;
+    gap: .25rem;
+}
+
+#tippfeld {
+    grid-template: repeat(7, 1.5rem) / repeat(7, 1.5rem);
+}
+
+#superzahl {
+    grid-template: 1.5rem / repeat(10, 1.5rem);
+}
+
+input {
+    position: absolute !important;
+    clip: rect(1px, 1px, 1px, 1px);
+    padding: 0 !important;
+    border: 0 !important;
+    height: 1px !important;
+    width: 1px !important;
+    overflow: hidden;
+}
+
+label {
+    position: relative;
+    text-align: center;
+    color: firebrick;
+    border: thin solid firebrick;
+    line-height: 1.5;
+}
+
+:checked+label::after {
+    content: "×";
+    position: absolute;
+    left: 0;
+    top: -1.15rem;
+    right: 0;
+    font-size: 2.5rem;
+    color: darkblue;
+    opacity: .6;
+}
+
+input:hover+label,
+input:focus+label {
+    background: #ffebe6;
+}
