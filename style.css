@@ -13,15 +13,15 @@ main {
     display: flex;
 }
 
-#chooseNumber {
+.chooseNumber {
     width: 50%;
 }
 
-#chooseNumber h2 {
+.chooseNumber h2 {
     text-align: center;
 }
 
-#chooseNumber button {
+.chooseNumber button {
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -75,4 +75,26 @@ main {
 .numberBet #winners p {
     margin-left: 4.5rem;
     font-size: 30px;
+}
+
+
+/* Try again button */
+
+#tryagain {
+    margin-left: 46.5%;
+    margin-top: 10rem;
+    padding: 16px 32px;
+    border: 1px solid black;
+    font-size: 16px;
+    color: white;
+    background-color: black;
+    cursor: pointer;
+    transition-duration: 0.4s;
+    display: none;
+}
+
+#tryagain:hover {
+    background-color: white;
+    color: black;
+    transition-duration: 0.4s;
 }

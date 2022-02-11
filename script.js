@@ -5,9 +5,10 @@ let equal = 0;
 let bets = 6;
 
 function lottoNumber(value) {
-    if (counter == 6) {
-
-    } else {
+    if (counter == 6) {} else {
+        document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.background = "none";
+        document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.background = "white";
+        document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.color = "black";
         betsNumber.push(value);
         var myBets = document.getElementById("myBets");
         var p = document.createElement("p");
@@ -63,10 +64,18 @@ function lottoNumber(value) {
                 }
             }
             if (equal == 6) {
+                document.querySelector("body").style.background = "none";
                 document.querySelector("body").style.backgroundColor = "green";
             } else {
                 alert("You Lost!");
+                document.querySelector("body").style.background = "none";
+                document.querySelector("body").style.backgroundColor = "red";
+                document.getElementById("tryagain").style.display = "block";
             }
         }
     }
+}
+
+function refreshPage() {
+    window.location = window.location;
 }
