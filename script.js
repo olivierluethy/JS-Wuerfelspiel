@@ -9,6 +9,7 @@ function lottoNumber(value) {
         document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.background = "none";
         document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.background = "white";
         document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.color = "black";
+        /* https://stackoverflow.com/questions/42528100/nth-child-in-javascript/42528240 */
         betsNumber.push(value);
         var myBets = document.getElementById("myBets");
         var p = document.createElement("p");
@@ -64,10 +65,12 @@ function lottoNumber(value) {
                 }
             }
             if (equal == 6) {
-                document.querySelector("body").style.background = "none";
-                document.querySelector("body").style.backgroundColor = "green";
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
             } else {
-                alert("You Lost!");
                 document.querySelector("body").style.background = "none";
                 document.querySelector("body").style.backgroundColor = "red";
                 document.getElementById("tryagain").style.display = "block";
