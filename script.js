@@ -5,7 +5,10 @@ let equal = 0;
 let bets = 6;
 
 function lottoNumber(value) {
-    if (counter == 6) {} else {
+    /* Falls 6 Zahlen ausgewählt wurden */
+    if (counter == 6) {}
+    /* Falls noch nicht 6 ausgewählt wurden */
+    else {
         document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.background = "none";
         document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.background = "white";
         document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.color = "black";
@@ -19,7 +22,9 @@ function lottoNumber(value) {
         document.querySelector("h2").innerHTML = "Please chose " + bets + " out of 49";
         counter++;
 
+        /* Zur Sicherheit wird nochmals überprüft */
         if (counter == 6) {
+            /* Lottozahlen werden generiert */
             let lotto1 = Math.floor(Math.random() * 49);
             let lotto2 = Math.floor(Math.random() * 49);
             let lotto3 = Math.floor(Math.random() * 49);
@@ -27,6 +32,7 @@ function lottoNumber(value) {
             let lotto5 = Math.floor(Math.random() * 49);
             let lotto6 = Math.floor(Math.random() * 49);
 
+            /* Alle generierten Lottozahlen gehen in ein Array */
             lotto.push(lotto1);
             lotto.push(lotto2);
             lotto.push(lotto3);
@@ -34,6 +40,7 @@ function lottoNumber(value) {
             lotto.push(lotto5);
             lotto.push(lotto6);
 
+            /* Durch das Erstellen eines "p" Elements, werden die Lottozahlen angezeigt, welche im "p" Element drin sind */
             var winners = document.getElementById("winners");
             var p = document.createElement("p");
             p.appendChild(document.createTextNode(lotto1));
@@ -59,18 +66,23 @@ function lottoNumber(value) {
             p.appendChild(document.createTextNode(lotto6));
             winners.appendChild(p);
 
+            /* Überprüft wie viele Zahlen stimmen */
             for (var i = 0; i < lotto.length; i++) {
                 if (lotto[i] == myBets[i]) {
                     equal++;
                 }
             }
+            /* Falls alle stimmen */
             if (equal == 6) {
+                /* Hier wird die Animation hinzugefügt */
                 confetti({
                     particleCount: 100,
                     spread: 70,
                     origin: { y: 0.6 }
                 });
-            } else {
+            }
+            /* Falls nicht alle stimmen */
+            else {
                 document.querySelector("body").style.background = "none";
                 document.querySelector("body").style.backgroundColor = "red";
                 document.getElementById("tryagain").style.display = "block";
