@@ -13,19 +13,19 @@ main {
     display: flex;
 }
 
-.chooseNumber {
+#chooseNumber {
     width: 50%;
 }
 
-.chooseNumber h2 {
+#chooseNumber h2 {
     text-align: center;
 }
 
-.chooseNumber input {
+#chooseNumber button {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    margin-left: 2.5rem;
+    margin-left: 2.8rem;
     margin-top: 1.5rem;
     background: rgb(2, 0, 36);
     background: radial-gradient(circle, rgba(2, 0, 36, 1) 0%, rgba(101, 9, 121, 1) 100%, rgba(0, 212, 255, 1) 100%);
@@ -47,18 +47,32 @@ main {
     text-align: center;
 }
 
-.numberBet .myBets {
+.numberBet #myBets {
     margin-left: 5rem;
     width: 80%;
     height: 30%;
     border: 2px solid black;
     border-radius: 10%;
+    display: flex;
+    flex-wrap: wrap;
 }
 
-.numberBet .winners {
+.numberBet #myBets p {
+    margin-left: 4.5rem;
+    font-size: 30px;
+}
+
+.numberBet #winners {
     margin-left: 5rem;
     width: 80%;
     height: 30%;
     border: 2px solid black;
     border-radius: 10%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.numberBet #winners p {
+    margin-left: 4.5rem;
+    font-size: 30px;
 }
