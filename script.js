@@ -25,12 +25,13 @@ function lottoNumber(value) {
         /* Zur Sicherheit wird nochmals überprüft */
         if (counter == 6) {
             /* Lottozahlen werden generiert */
-            let lotto1 = Math.floor(Math.random() * 49);
-            let lotto2 = Math.floor(Math.random() * 49);
-            let lotto3 = Math.floor(Math.random() * 49);
-            let lotto4 = Math.floor(Math.random() * 49);
-            let lotto5 = Math.floor(Math.random() * 49);
-            let lotto6 = Math.floor(Math.random() * 49);
+            let lotto1 = Math.floor(Math.random() * 49) + 1;
+            let lotto2 = Math.floor(Math.random() * 49) + 1;
+            let lotto3 = Math.floor(Math.random() * 49) + 1;
+            let lotto4 = Math.floor(Math.random() * 49) + 1;
+            let lotto5 = Math.floor(Math.random() * 49) + 1;
+            let lotto6 = Math.floor(Math.random() * 49) + 1;
+            /* https://www.codegrepper.com/code-examples/javascript/js+random+number+between+1+and+100 */
 
             /* Alle generierten Lottozahlen gehen in ein Array */
             lotto.push(lotto1);
