@@ -29,12 +29,16 @@ main {
     margin-top: 1.5rem;
     background: rgb(2, 0, 36);
     background: radial-gradient(circle, rgba(2, 0, 36, 1) 0%, rgba(101, 9, 121, 1) 100%, rgba(0, 212, 255, 1) 100%);
-    border: none;
     color: white;
     font-size: 20px;
     /* https://stackoverflow.com/questions/12114570/how-to-align-texts-inside-of-an-input */
     text-align: center;
+    border: 1px solid rgb(2, 0, 36);
     cursor: pointer;
+}
+
+.chooseNumber button:hover {
+    border: 2px solid yellow;
 }
 
 .numberBet {
@@ -97,4 +101,27 @@ main {
     background-color: white;
     color: black;
     transition-duration: 0.4s;
+}
+
+
+/* Responsive Design Part */
+
+@media screen and (max-width: 1010px) {
+    main {
+        display: block;
+    }
+    .chooseNumber {
+        width: 100%;
+    }
+    .numberBet {
+        width: 100%;
+        margin-top: 2rem;
+    }
+    .numberBet #myBets {
+        height: 5rem;
+    }
+    .numberBet #winners {
+        height: 5rem;
+        margin-bottom: 2rem;
+    }
 }

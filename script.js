@@ -93,4 +93,5 @@ function lottoNumber(value) {
 
 function refreshPage() {
     window.location = window.location;
+    /* https://stackoverflow.com/questions/15897434/javascript-refresh-parent-page-without-entirely-reloading */
 }
