@@ -1,0 +1,114 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: rgb(255, 255, 255);
+    background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(0, 212, 255, 1) 100%, rgba(14, 214, 255, 1) 100%, rgba(54, 108, 191, 1) 100%);
+    h1 {
+        margin-top: 2rem;
+        margin-left: 2.5rem;
+    }
+    main {
+        display: flex;
+        .chooseNumber {
+            width: 50%;
+            h2 {
+                text-align: center;
+            }
+            button {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                margin-left: 2.8rem;
+                margin-top: 1.5rem;
+                background: rgb(2, 0, 36);
+                background: radial-gradient(circle, rgba(2, 0, 36, 1) 0%, rgba(101, 9, 121, 1) 100%, rgba(0, 212, 255, 1) 100%);
+                color: white;
+                font-size: 20px;
+                /* https://stackoverflow.com/questions/12114570/how-to-align-texts-inside-of-an-input */
+                text-align: center;
+                border: 1px solid rgb(2, 0, 36);
+                cursor: pointer;
+                &:hover {
+                    border: 2px solid yellow;
+                }
+            }
+        }
+        .numberBet {
+            width: 50%;
+            border: 2px solid black;
+            border-radius: 20%;
+            h2 {
+                text-align: center;
+            }
+            #myBets {
+                margin-left: 5rem;
+                width: 80%;
+                height: 30%;
+                border: 2px solid black;
+                border-radius: 10%;
+                display: flex;
+                flex-wrap: wrap;
+                p {
+                    margin-left: 4.5rem;
+                    font-size: 30px;
+                }
+            }
+            #winners {
+                margin-left: 5rem;
+                width: 80%;
+                height: 30%;
+                border: 2px solid black;
+                border-radius: 10%;
+                display: flex;
+                flex-wrap: wrap;
+                p {
+                    margin-left: 4.5rem;
+                    font-size: 30px;
+                }
+            }
+        }
+    }
+}
+
+
+/* Try again button */
+
+#tryagain {
+    margin-left: 46.5%;
+    margin-top: 10rem;
+    padding: 16px 32px;
+    border: 1px solid black;
+    font-size: 16px;
+    color: white;
+    background-color: black;
+    cursor: pointer;
+    transition-duration: 0.4s;
+    display: none;
+    &:hover {
+        background-color: white;
+        color: black;
+        transition-duration: 0.4s;
+    }
+}
+
+
+/* Responsive Design Part */
+
+@media screen and (max-width: 1010px) {
+    main {
+        display: block;
+    }
+    .chooseNumber {
+        width: 100%;
+    }
+    .numberBet {
+        width: 100%;
+        margin-top: 2rem;
+    }
+    .numberBet #myBets {
+        height: 5rem;
+    }
+    .numberBet #winners {
+        height: 5rem;
+        margin-bottom: 2rem;
+    }
+}
