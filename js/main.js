@@ -12,6 +12,8 @@ function lottoNumber(value) {
         document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.background = "none";
         document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.background = "white";
         document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.color = "black";
+        document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + "):hover").style.borderColor = "white";
+        document.querySelector(".chooseNumber button:nth-child(" + (value + 1) + ")").style.setProperty("cursor", "context-menu");
         /* https://stackoverflow.com/questions/42528100/nth-child-in-javascript/42528240 */
         betsNumber.push(value);
         var myBets = document.getElementById("myBets");
