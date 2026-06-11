@@ -219,19 +219,25 @@
         requestAnimationFrame(step);
     }
 
-    /* ---------- 5. The drum: bouncing-ball physics ---------- */
+    /* ---------- 5. The drum: weighted bouncing-ball physics ----------
+       requestAnimationFrame loop (no CSS transitions / spring libs).
+       Balls have real weight: strong gravity, low restitution, motion
+       squash/stretch, and momentum-redirecting ball-ball collisions. */
+    const getBallSize = () =>
+        parseFloat(getComputedStyle(document.documentElement)
+            .getPropertyValue("--ball-size")) * 16 || 36;
+
     const Drum = (() => {
         const drumEl = $("#drum");
         const layer = $("#drumBalls");
         const balls = [];
         let raf = null;
-        let blowing = false;
+        let blowPower = 0;          // 0 = off, 0.5 = idle, 1 = full mix
 
         const metrics = () => {
             const r = drumEl.getBoundingClientRect();
-            const ballSize = parseFloat(getComputedStyle(document.documentElement)
-                .getPropertyValue("--ball-size")) * 16 || 36;
-            return { R: r.width / 2, rad: ballSize / 2, size: ballSize };
+            const size = getBallSize();
+            return { R: r.width / 2, rad: size / 2, size };
         };
 
         function build(count = 22) {
@@ -245,7 +251,6 @@
                 el.textContent = num;
                 el.style.setProperty("--ball-color", ballColor(num));
                 layer.appendChild(el);
-                // random position inside the circle
                 const a = Math.random() * Math.PI * 2;
                 const d = Math.random() * (R - rad - 4);
                 balls.push({
@@ -254,59 +259,83 @@
                     y: R + Math.sin(a) * d - rad,
                     vx: (Math.random() - 0.5) * 2,
                     vy: (Math.random() - 0.5) * 2,
+                    squash: 0,            // transient deform on impact (decays)
                 });
             }
             draw();
         }
 
         function draw() {
-            for (const b of balls) b.el.style.transform = `translate(${b.x}px, ${b.y}px)`;
+            for (const b of balls) {
+                const speed = Math.hypot(b.vx, b.vy);
+                // motion stretch + impact squash, oriented along velocity
+                const stretch = Math.min(0.34, speed * 0.022 + b.squash * 0.26);
+                const ang = Math.atan2(b.vy, b.vx);
+                b.el.style.transform =
+                    `translate(${b.x}px, ${b.y}px) rotate(${ang}rad) ` +
+                    `scale(${1 + stretch}, ${1 - stretch * 0.65}) rotate(${-ang}rad)`;
+                b.squash *= 0.84;
+            }
         }
+
+        const MAXV = 15;            // velocity clamp — keeps the sim stable & weighty
 
         function frame() {
             const { R, rad, size } = metrics();
-            const gravity = 0.12;
-            const damp = 0.86;
+            const gravity = 0.55;   // heavy 50mm-ball feel — they do NOT float
+            const wallDamp = 0.62;  // plastic-on-glass: low bounce
+
             for (const b of balls) {
                 b.vy += gravity;
-                if (blowing) {
-                    b.vy -= 0.55 + Math.random() * 0.35;       // blower pushes balls up
-                    b.vx += (Math.random() - 0.5) * 0.9;       // turbulence
+                if (blowPower) {
+                    // air blower: upward gusts + lateral turbulence (chaotic)
+                    b.vy -= Math.random() * 1.7 * blowPower;
+                    b.vx += (Math.random() - 0.5) * 2.0 * blowPower;
+                    if (Math.random() < 0.04 * blowPower) b.vy -= 4 * blowPower; // strong gust
                 }
+                // clamp speed
+                const sp = Math.hypot(b.vx, b.vy);
+                if (sp > MAXV) { b.vx *= MAXV / sp; b.vy *= MAXV / sp; }
+
                 b.x += b.vx;
                 b.y += b.vy;
 
-                // collide with circular wall
+                // collide with circular wall (squash on impact)
                 const cx = b.x + rad, cy = b.y + rad;
                 const dx = cx - R, dy = cy - R;
-                const dist = Math.hypot(dx, dy);
+                const dist = Math.hypot(dx, dy) || 0.01;
                 const max = R - rad - 2;
                 if (dist > max) {
                     const nx = dx / dist, ny = dy / dist;
                     b.x = R + nx * max - rad;
                     b.y = R + ny * max - rad;
                     const dot = b.vx * nx + b.vy * ny;
-                    b.vx = (b.vx - 2 * dot * nx) * damp;
-                    b.vy = (b.vy - 2 * dot * ny) * damp;
+                    b.vx = (b.vx - 2 * dot * nx) * wallDamp;
+                    b.vy = (b.vy - 2 * dot * ny) * wallDamp;
+                    b.squash = Math.min(1, Math.abs(dot) * 0.07);
                 }
-                // gentle friction so idle balls settle
-                if (!blowing) { b.vx *= 0.99; b.vy *= 0.995; }
+                if (!blowPower) { b.vx *= 0.985; b.vy *= 0.99; } // settle when idle
             }
 
-            // cheap ball-ball separation
+            // ball-ball collisions: separate + redirect momentum (no pass-through)
             for (let i = 0; i < balls.length; i++) {
                 for (let j = i + 1; j < balls.length; j++) {
                     const a = balls[i], c = balls[j];
-                    let dx = (c.x - a.x), dy = (c.y - a.y);
+                    const dx = c.x - a.x, dy = c.y - a.y;
                     const d = Math.hypot(dx, dy) || 0.01;
                     if (d < size) {
                         const overlap = (size - d) / 2;
                         const nx = dx / d, ny = dy / d;
                         a.x -= nx * overlap; a.y -= ny * overlap;
                         c.x += nx * overlap; c.y += ny * overlap;
-                        const tmpx = a.vx, tmpy = a.vy;
-                        a.vx = c.vx * 0.9; a.vy = c.vy * 0.9;
-                        c.vx = tmpx * 0.9; c.vy = tmpy * 0.9;
+                        // exchange the velocity component along the contact normal
+                        const va = a.vx * nx + a.vy * ny;
+                        const vc = c.vx * nx + c.vy * ny;
+                        const diff = (vc - va) * 0.9;
+                        a.vx += diff * nx; a.vy += diff * ny;
+                        c.vx -= diff * nx; c.vy -= diff * ny;
+                        a.squash = Math.max(a.squash, Math.min(0.7, Math.abs(diff) * 0.08));
+                        c.squash = a.squash;
                     }
                 }
             }
@@ -314,22 +343,24 @@
             raf = requestAnimationFrame(frame);
         }
 
+        function run() { if (!raf && !reduceMotion) raf = requestAnimationFrame(frame); }
+
         return {
             build,
-            start() {
-                blowing = true;
-                drumEl.classList.add("is-spinning");
-                if (!raf && !reduceMotion) raf = requestAnimationFrame(frame);
-            },
-            calm() { blowing = false; },
-            stop() {
-                blowing = false;
+            // gentle idle churn (load / reset)
+            start() { blowPower = 0.5; drumEl.classList.add("is-spinning"); run(); },
+            // Phase A: full chaotic mixing
+            mix() {
+                blowPower = 1;
                 drumEl.classList.remove("is-spinning");
-                if (raf) { cancelAnimationFrame(raf); raf = null; }
+                drumEl.classList.add("is-mixing");
+                run();
             },
-            center() {
-                const r = drumEl.getBoundingClientRect();
-                return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+            calm() { blowPower = 0; },
+            stop() {
+                blowPower = 0;
+                drumEl.classList.remove("is-spinning", "is-mixing");
+                if (raf) { cancelAnimationFrame(raf); raf = null; }
             },
         };
     })();
@@ -360,6 +391,72 @@
     }
     const bonusSlot = () => slotsEl.querySelector('.result-slot[data-bonus]');
 
+    /* ---------- 5b. The tube: a drawn, curved exit pipe ----------
+       Spans the machine card from the drum's bottom chute down to the
+       left of the Winning Numbers row. Balls follow its centre-line via
+       SVG getPointAtLength, so the path is curved and fully responsive. */
+    const Tube = (() => {
+        const cardEl = $("#machineCard");
+        const svg = $("#tubeSvg");
+        let bore = null;            // path the balls follow
+        let geom = null;            // { startX, startY, exitX, exitY }
+
+        const cardRect = () => cardEl.getBoundingClientRect();
+        const toCard = (rect) => {
+            const c = cardRect();
+            return {
+                x: rect.left - c.left, y: rect.top - c.top,
+                w: rect.width, h: rect.height,
+                cx: rect.left - c.left + rect.width / 2,
+                cy: rect.top - c.top + rect.height / 2,
+            };
+        };
+
+        function build() {
+            const c = cardRect();
+            if (!c.width) return;
+            svg.setAttribute("viewBox", `0 0 ${c.width} ${c.height}`);
+
+            const drum = toCard($("#drum").getBoundingClientRect());
+            const row = toCard(slotsEl.getBoundingClientRect());
+            const r = getBallSize() / 2;
+
+            // start at the drum's bottom chute
+            const startX = drum.cx;
+            const startY = drum.y + drum.h - 6;
+            // exit just to the LEFT of the results row, level with the slots
+            const exitX = Math.max(r + 8, row.x - r - 2);
+            const exitY = row.cy;
+
+            // S-curve: drop straight, then sweep left to the exit
+            const d =
+                `M ${startX} ${startY} ` +
+                `C ${startX} ${startY + 46}, ` +
+                `${exitX + (startX - exitX) * 0.5} ${(startY + exitY) / 2 + 14}, ` +
+                `${exitX} ${exitY}`;
+
+            const casing = Math.max(getBallSize() + 10, 32);
+            svg.innerHTML =
+                `<path class="tube-casing" d="${d}" stroke-width="${casing}"/>` +
+                `<path class="tube-bore" d="${d}" stroke-width="${casing - 9}"/>`;
+            bore = svg.querySelector(".tube-bore");
+            geom = { startX, startY, exitX, exitY };
+        }
+
+        return {
+            build,
+            get start() { return { x: geom.startX, y: geom.startY }; },
+            get exit() { return { x: geom.exitX, y: geom.exitY }; },
+            length: () => bore.getTotalLength(),
+            pointAt: (len) => bore.getPointAtLength(len),
+            toCard,
+            ready: () => !!bore,
+        };
+    })();
+
+    const fxLayer = $("#machineFx");
+    const slotCenter = (slot) => Tube.toCard(slot.getBoundingClientRect());
+
     /* ---------- 6. The draw sequence ---------- */
     $("#playBtn").addEventListener("click", startDraw);
 
@@ -374,24 +471,26 @@
         $("#quickPick").disabled = true;
         $("#clearBtn").disabled = true;
         $("#hint").textContent = "Drawing… good luck!";
-        setStatus("Mixing…", "amber");
 
         // generate the result up front (unique)
         const pool = shuffle([...Array(TOTAL)].map((_, i) => i + 1));
         state.drawn = pool.slice(0, PICKS);
         state.bonus = pool[PICKS];
 
-        Drum.start();
-        Sound.startBlower();
-        await sleep(reduceMotion ? 200 : 1600);   // build suspense
+        Tube.build();   // make sure the pipe geometry is current
 
-        // draw the 6 main numbers
+        // ----- Phase A: mixing (~4.5s of chaotic tumbling) -----
+        setStatus("Mixing…", "amber");
+        Drum.mix();
+        Sound.startBlower();
+        await sleep(reduceMotion ? 200 : 4500);
+
+        // ----- Phase B + C: eject the balls one at a time -----
         for (let i = 0; i < PICKS; i++) {
             setStatus(`Drawing ${i + 1} of ${PICKS}…`, "amber");
             await drawOne(state.drawn[i], slotEls()[i], false);
-            await sleep(reduceMotion ? 100 : 650);
+            await sleep(reduceMotion ? 80 : 320);
         }
-        // draw the bonus
         setStatus("Bonus number…", "amber");
         await drawOne(state.bonus, bonusSlot(), true);
 
@@ -400,51 +499,87 @@
         finishDraw();
     }
 
-    // Eject one ball: a flying ball travels from the drum centre to the slot.
-    function drawOne(num, slot, isBonus) {
+    /* Place the final resting ball into its slot, with one bounce + glow. */
+    function settleBall(num, slot, isBonus) {
+        const ball = document.createElement("div");
+        ball.className = "ball" + (isBonus ? " ball--bonus" : "") + (reduceMotion ? "" : " ball--settle");
+        ball.textContent = num;
+        if (!isBonus) ball.style.setProperty("--ball-color", ballColor(num));
+        ball.dataset.n = num;
+        slot.appendChild(ball);
+
+        slot.style.setProperty("--glow", isBonus ? "#f5c518" : ballColor(num));
+        slot.classList.add("is-glowing");
+        setTimeout(() => slot.classList.remove("is-glowing"), 600);
+        Sound.pop();
+    }
+
+    /* Phase B: roll the ball down the curved tube (drum -> exit). */
+    function travelTube(flyer) {
         return new Promise((resolve) => {
-            const stage = $("#machineStage");
-            const stageRect = stage.getBoundingClientRect();
-            const ballSize = parseFloat(getComputedStyle(document.documentElement)
-                .getPropertyValue("--ball-size")) * 16 || 36;
-
-            const place = () => {
-                const ball = document.createElement("div");
-                ball.className = "ball" + (isBonus ? " ball--bonus" : "");
-                ball.textContent = num;
-                if (!isBonus) ball.style.setProperty("--ball-color", ballColor(num));
-                ball.dataset.n = num;
-                slot.appendChild(ball);
-                slot.classList.add("animate-pop-in");
-                Sound.pop();
-                resolve();
+            const L = Tube.length();
+            const r = getBallSize() / 2;
+            const dur = 1150;
+            let t0 = null, last = null, roll = 0;
+            const stepFn = (now) => {
+                if (t0 === null) t0 = now;
+                const t = Math.min(1, (now - t0) / dur);
+                // smoothstep: ease in (drop into tube) then ease out (decelerate at exit)
+                const e = t * t * (3 - 2 * t);
+                const pt = Tube.pointAt(e * L);
+                if (last) roll += Math.hypot(pt.x - last.x, pt.y - last.y) / r;
+                last = pt;
+                flyer.style.transform = `translate(${pt.x - r}px, ${pt.y - r}px) rotate(${roll}rad)`;
+                if (t < 1) requestAnimationFrame(stepFn);
+                else resolve(pt);
             };
-
-            if (reduceMotion) { place(); return; }
-
-            const flyer = document.createElement("div");
-            flyer.className = "ball ball--flying" + (isBonus ? " ball--bonus" : "");
-            flyer.textContent = num;
-            if (!isBonus) flyer.style.setProperty("--ball-color", ballColor(num));
-
-            const c = Drum.center();
-            const startX = c.x - stageRect.left - ballSize / 2;
-            const startY = c.y - stageRect.top - ballSize / 2;
-            flyer.style.transform = `translate(${startX}px, ${startY}px) scale(.9)`;
-            stage.appendChild(flyer);
-
-            const sr = slot.getBoundingClientRect();
-            const endX = sr.left - stageRect.left + (sr.width - ballSize) / 2;
-            const endY = sr.top - stageRect.top + (sr.height - ballSize) / 2;
-
-            requestAnimationFrame(() => {
-                flyer.style.transform = `translate(${endX}px, ${endY}px) scale(1.05)`;
-            });
-            flyer.addEventListener("transitionend", () => {
-                flyer.remove();
-                place();
-            }, { once: true });
+            requestAnimationFrame(stepFn);
         });
+    }
+
+    /* Phase C: roll out of the tube into the slot, entering from the left. */
+    function slideToSlot(flyer, slot, from) {
+        return new Promise((resolve) => {
+            const r = getBallSize() / 2;
+            const s = slotCenter(slot);
+            const dur = 540;
+            let t0 = null, lastX = from.x, roll = 0;
+            const stepFn = (now) => {
+                if (t0 === null) t0 = now;
+                const t = Math.min(1, (now - t0) / dur);
+                const e = 1 - Math.pow(1 - t, 3);          // ease-out: decelerate
+                const x = from.x + (s.cx - from.x) * e;
+                const y = from.y + (s.cy - from.y) * e;
+                roll += Math.abs(x - lastX) / r;            // rolling rightwards
+                lastX = x;
+                flyer.style.transform = `translate(${x - r}px, ${y - r}px) rotate(${roll}rad)`;
+                if (t < 1) requestAnimationFrame(stepFn);
+                else resolve();
+            };
+            requestAnimationFrame(stepFn);
+        });
+    }
+
+    /* Full ejection of one ball: Phase B -> Phase C -> rest. */
+    async function drawOne(num, slot, isBonus) {
+        if (reduceMotion || !Tube.ready()) {
+            settleBall(num, slot, isBonus);
+            return;
+        }
+        const r = getBallSize() / 2;
+        const flyer = document.createElement("div");
+        flyer.className = "ball ball--flying" + (isBonus ? " ball--bonus" : "");
+        flyer.textContent = num;
+        if (!isBonus) flyer.style.setProperty("--ball-color", ballColor(num));
+        const start = Tube.start;
+        flyer.style.transform = `translate(${start.x - r}px, ${start.y - r}px)`;
+        fxLayer.appendChild(flyer);
+        Sound.tick();
+
+        const exitPt = await travelTube(flyer);   // Phase B
+        await slideToSlot(flyer, slot, exitPt);    // Phase C
+        flyer.remove();
+        settleBall(num, slot, isBonus);            // one-bounce rest + glow
     }
 
     function setStatus(text, tone) {
@@ -567,6 +702,7 @@
         $("#quickPick").disabled = false;
         buildSlots();
         Drum.build();
+        Tube.build();
         Drum.start(); requestAnimationFrame(() => Drum.calm()); // idle jiggle then settle
         setTimeout(() => Drum.stop(), 1200);
         setStatus("Idle", "slate");
@@ -579,11 +715,15 @@
         tickJackpot();
         buildSlots();
         Drum.build();
+        Tube.build();
         // a brief idle shuffle so the drum looks alive on load
         Drum.start();
         setTimeout(() => Drum.stop(), 1400);
         syncTicket();
-        window.addEventListener("resize", () => { if (state.phase === "select") Drum.build(); });
+        window.addEventListener("resize", () => {
+            Tube.build();
+            if (state.phase === "select") Drum.build();
+        });
     }
 
     if (document.readyState === "loading") {

@@ -145,8 +145,12 @@
         <section class="flex flex-col gap-6">
 
             <!-- Lottery machine -->
-            <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900/80 to-slate-900/40 p-5 shadow-2xl sm:p-7">
+            <div id="machineCard" class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900/80 to-slate-900/40 p-5 shadow-2xl sm:p-7">
                 <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-swiss-red via-gold to-swiss-red"></div>
+
+                <!-- Tube pipe (drawn, behind the drum) + flying-ball layer (on top) -->
+                <svg id="tubeSvg" class="pointer-events-none absolute inset-0 z-[1] h-full w-full" aria-hidden="true"></svg>
+                <div id="machineFx" class="pointer-events-none absolute inset-0 z-[40]"></div>
 
                 <div class="mb-4 flex items-center justify-between">
                     <h2 class="font-display text-2xl font-bold tracking-wide">The Draw</h2>
@@ -154,18 +158,18 @@
                 </div>
 
                 <!-- machine stage (positioning context for the flying ball) -->
-                <div id="machineStage" class="relative mx-auto flex flex-col items-center">
+                <div id="machineStage" class="relative z-[2] mx-auto flex flex-col items-center">
                     <div id="drum" class="lotto-drum">
                         <div id="drumBalls" class="lotto-drum__balls"></div>
+                        <div class="lotto-drum__swirl"></div>
                         <div class="lotto-drum__glass"></div>
                         <div class="lotto-drum__rim"></div>
+                        <div class="lotto-drum__chute"></div>
                     </div>
-                    <div class="lotto-tube"></div>
-                    <div class="lotto-base"></div>
                 </div>
 
                 <!-- Result slots -->
-                <div class="mt-6">
+                <div class="relative z-[2] mt-6">
                     <p class="mb-2 text-center text-[11px] uppercase tracking-[0.3em] text-slate-400">Winning Numbers</p>
                     <div id="resultSlots" class="flex flex-wrap items-center justify-center gap-2 sm:gap-3"></div>
                 </div>
