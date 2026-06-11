@@ -157,14 +157,36 @@
                     <span id="drawStatus" class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300">Idle</span>
                 </div>
 
-                <!-- machine stage (positioning context for the flying ball) -->
-                <div id="machineStage" class="relative z-[2] mx-auto flex flex-col items-center">
-                    <div id="drum" class="lotto-drum">
-                        <div id="drumBalls" class="lotto-drum__balls"></div>
-                        <div class="lotto-drum__swirl"></div>
-                        <div class="lotto-drum__glass"></div>
-                        <div class="lotto-drum__rim"></div>
-                        <div class="lotto-drum__chute"></div>
+                <!-- machine stage (positioning context for the flying balls) -->
+                <div id="machineStage" class="relative z-[2] flex w-full items-end justify-center gap-3 sm:gap-5">
+                    <!-- Main 6 / 49 machine -->
+                    <div class="flex flex-col items-center gap-2">
+                        <div id="drum" class="lotto-drum">
+                            <div id="drumBalls" class="lotto-drum__balls"></div>
+                            <div class="lotto-drum__swirl"></div>
+                            <div class="lotto-drum__airstream"></div>
+                            <div class="lotto-drum__glass"></div>
+                            <div class="lotto-drum__rim"></div>
+                            <div class="lotto-drum__blower"></div>
+                            <div class="lotto-drum__valve"></div>
+                            <div class="lotto-drum__chute"></div>
+                        </div>
+                        <span class="text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400">6 / 49</span>
+                    </div>
+
+                    <!-- Separate, smaller Glückszahl machine -->
+                    <div class="flex flex-col items-center gap-2">
+                        <div id="bonusDrum" class="lotto-drum lotto-drum--mini">
+                            <div id="bonusDrumBalls" class="lotto-drum__balls"></div>
+                            <div class="lotto-drum__swirl"></div>
+                            <div class="lotto-drum__airstream"></div>
+                            <div class="lotto-drum__glass"></div>
+                            <div class="lotto-drum__rim"></div>
+                            <div class="lotto-drum__blower"></div>
+                            <div class="lotto-drum__valve"></div>
+                            <div class="lotto-drum__chute"></div>
+                        </div>
+                        <span class="text-[10px] font-semibold uppercase tracking-[0.25em] text-gold/80">Glückszahl</span>
                     </div>
                 </div>
 
