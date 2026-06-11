@@ -1,114 +1,207 @@
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: rgb(255, 255, 255);
-    background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(0, 212, 255, 1) 100%, rgba(14, 214, 255, 1) 100%, rgba(54, 108, 191, 1) 100%);
-    h1 {
-        margin-top: 2rem;
-        margin-left: 2.5rem;
-    }
-    main {
-        display: flex;
-        .chooseNumber {
-            width: 50%;
-            h2 {
-                text-align: center;
-            }
-            button {
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                margin-left: 2.8rem;
-                margin-top: 1.5rem;
-                background: rgb(2, 0, 36);
-                background: radial-gradient(circle, rgba(2, 0, 36, 1) 0%, rgba(101, 9, 121, 1) 100%, rgba(0, 212, 255, 1) 100%);
-                color: white;
-                font-size: 20px;
-                /* https://stackoverflow.com/questions/12114570/how-to-align-texts-inside-of-an-input */
-                text-align: center;
-                border: 1px solid rgb(2, 0, 36);
-                cursor: pointer;
-                &:hover {
-                    border: 2px solid yellow;
-                }
-            }
-        }
-        .numberBet {
-            width: 50%;
-            border: 2px solid black;
-            border-radius: 20%;
-            h2 {
-                text-align: center;
-            }
-            #myBets {
-                margin-left: 5rem;
-                width: 80%;
-                height: 30%;
-                border: 2px solid black;
-                border-radius: 10%;
-                display: flex;
-                flex-wrap: wrap;
-                p {
-                    margin-left: 4.5rem;
-                    font-size: 30px;
-                }
-            }
-            #winners {
-                margin-left: 5rem;
-                width: 80%;
-                height: 30%;
-                border: 2px solid black;
-                border-radius: 10%;
-                display: flex;
-                flex-wrap: wrap;
-                p {
-                    margin-left: 4.5rem;
-                    font-size: 30px;
-                }
-            }
-        }
+/* ============================================================
+   SWISS LOTTO — custom visuals
+   Only what Tailwind can't express lives here: the glass drum,
+   ball gloss, the ejection tube and the physics-driven balls.
+   Everything else is Tailwind utilities in index.html.
+   ============================================================ */
+
+:root {
+    --drum-size: 17rem;
+    --ball-size: 2rem;
+}
+
+@media (min-width: 640px) {
+    :root {
+        --drum-size: 20rem;
+        --ball-size: 2.25rem;
     }
 }
 
+/* ---------- The drum ---------- */
+.lotto-drum {
+    position: relative;
+    width: var(--drum-size);
+    height: var(--drum-size);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0) 45%),
+        radial-gradient(circle at 50% 60%, rgba(2, 6, 23, 0.6), rgba(2, 6, 23, 0.85));
+    box-shadow:
+        inset 0 0 60px rgba(0, 0, 0, 0.8),
+        inset 0 8px 20px rgba(255, 255, 255, 0.06),
+        0 30px 60px -20px rgba(0, 0, 0, 0.9);
+    overflow: hidden;
+    transition: transform 0.15s ease;
+}
 
-/* Try again button */
+/* shaking while the blower runs */
+.lotto-drum.is-spinning {
+    animation: drum-shake 0.5s linear infinite;
+}
 
-#tryagain {
-    margin-left: 46.5%;
-    margin-top: 10rem;
-    padding: 16px 32px;
-    border: 1px solid black;
-    font-size: 16px;
-    color: white;
-    background-color: black;
+@keyframes drum-shake {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-1.5px, 1px) rotate(-0.4deg); }
+    50% { transform: translate(1px, -1.5px) rotate(0.3deg); }
+    75% { transform: translate(1.5px, 1px) rotate(0.4deg); }
+}
+
+/* glass reflection + inner rim sit above the balls */
+.lotto-drum__glass {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 38%),
+        radial-gradient(circle at 72% 80%, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 30%);
+}
+
+.lotto-drum__rim {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    border: 6px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.05);
+}
+
+.lotto-drum__balls {
+    position: absolute;
+    inset: 0;
+}
+
+/* ---------- Tube + base (the stand under the drum) ---------- */
+.lotto-tube {
+    width: 2.75rem;
+    height: 1.5rem;
+    margin-top: -0.5rem;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: none;
+    border-radius: 0 0 0.5rem 0.5rem;
+    box-shadow: inset 0 -6px 10px rgba(0, 0, 0, 0.4);
+}
+
+.lotto-base {
+    width: 9rem;
+    height: 0.85rem;
+    border-radius: 0 0 1rem 1rem;
+    background: linear-gradient(to bottom, #334155, #0f172a);
+    box-shadow: 0 14px 24px -10px rgba(0, 0, 0, 0.8);
+}
+
+/* ---------- Balls (used both inside the drum and as result balls) ---------- */
+.ball {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--ball-size);
+    height: var(--ball-size);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #0b1220;
+    will-change: transform;
+    background:
+        radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 42%),
+        var(--ball-color, #f8fafc);
+    box-shadow:
+        inset -3px -4px 8px rgba(0, 0, 0, 0.28),
+        inset 2px 2px 5px rgba(255, 255, 255, 0.6),
+        0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* The single ball that flies from the drum to a result slot */
+.ball--flying {
+    position: absolute;
+    z-index: 20;
+    transition: transform 0.85s cubic-bezier(0.5, 0, 0.4, 1);
+}
+
+/* ---------- Result slots ---------- */
+.result-slot {
+    position: relative;
+    width: var(--ball-size);
+    height: var(--ball-size);
+    border-radius: 50%;
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    display: grid;
+    place-items: center;
+}
+
+.result-slot .ball {
+    position: static;
+}
+
+/* Bonus ball gets the gold treatment */
+.ball--bonus {
+    --ball-color: #f5c518;
+    color: #4a3a00;
+    box-shadow:
+        inset -3px -4px 8px rgba(120, 90, 0, 0.4),
+        inset 2px 2px 5px rgba(255, 255, 255, 0.7),
+        0 0 16px rgba(245, 197, 24, 0.6);
+}
+
+/* ---------- Ticket number buttons ---------- */
+.num-btn {
+    aspect-ratio: 1 / 1;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 0.12s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
-    transition-duration: 0.4s;
-    display: none;
-    &:hover {
-        background-color: white;
-        color: black;
-        transition-duration: 0.4s;
-    }
+    user-select: none;
 }
 
+.num-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: rgba(245, 197, 24, 0.5);
+}
 
-/* Responsive Design Part */
+.num-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
 
-@media screen and (max-width: 1010px) {
-    main {
-        display: block;
-    }
-    .chooseNumber {
-        width: 100%;
-    }
-    .numberBet {
-        width: 100%;
-        margin-top: 2rem;
-    }
-    .numberBet #myBets {
-        height: 5rem;
-    }
-    .numberBet #winners {
-        height: 5rem;
-        margin-bottom: 2rem;
-    }
+.num-btn.is-selected {
+    color: #fff;
+    background: linear-gradient(to bottom, #f8fafc, #cbd5e1);
+    color: #0b1220;
+    border-color: #fff;
+    box-shadow: 0 0 0 2px rgba(245, 197, 24, 0.9), 0 6px 14px -4px rgba(245, 197, 24, 0.6);
+    transform: translateY(-2px);
+}
+
+/* a matched number on the ticket after the draw */
+.num-btn.is-hit {
+    background: linear-gradient(to bottom, #16a34a, #15803d);
+    color: #fff;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.8), 0 0 18px rgba(34, 197, 94, 0.5);
+    animation: hit-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes hit-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+/* a matched result ball */
+.ball.is-hit {
+    outline: 3px solid #22c55e;
+    outline-offset: 2px;
+}
+
+/* reduced motion: drop the looping animations */
+@media (prefers-reduced-motion: reduce) {
+    .lotto-drum.is-spinning { animation: none; }
+    .num-btn.is-hit { animation: none; }
+    .ball--flying { transition-duration: 0.3s; }
 }

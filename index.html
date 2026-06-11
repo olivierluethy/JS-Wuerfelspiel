@@ -1,88 +1,202 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css">
     <link rel="shortcut icon" href="images/favicon.ico">
-    <!-- Stellt die Library zur verfügung, um die Animation zu verwenden -->
+    <title>SWISS LOTTO · 6 / 49</title>
+
+    <!-- Tailwind CSS (Play CDN) — no build step required for this static project -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['"Oswald"', "system-ui", "sans-serif"],
+                        body: ['"Inter"', "system-ui", "sans-serif"],
+                    },
+                    colors: {
+                        swiss: {
+                            red: "#e30613",
+                            dark: "#b00410",
+                        },
+                        gold: "#f5c518",
+                    },
+                    keyframes: {
+                        "count-up": { from: { opacity: 0, transform: "translateY(6px)" }, to: { opacity: 1, transform: "translateY(0)" } },
+                        "pop-in": {
+                            "0%": { opacity: 0, transform: "scale(.4)" },
+                            "60%": { opacity: 1, transform: "scale(1.18)" },
+                            "100%": { transform: "scale(1)" },
+                        },
+                        "fade-up": { from: { opacity: 0, transform: "translateY(14px)" }, to: { opacity: 1, transform: "translateY(0)" } },
+                        glow: {
+                            "0%,100%": { boxShadow: "0 0 0 0 rgba(245,197,24,.0)" },
+                            "50%": { boxShadow: "0 0 26px 6px rgba(245,197,24,.65)" },
+                        },
+                        shimmer: { "100%": { transform: "translateX(100%)" } },
+                    },
+                    animation: {
+                        "count-up": "count-up .5s ease-out",
+                        "pop-in": "pop-in .45s cubic-bezier(.2,.8,.3,1.4) both",
+                        "fade-up": "fade-up .5s ease-out both",
+                        glow: "glow 1.6s ease-in-out infinite",
+                    },
+                },
+            },
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
-    <title>LOTTO</title>
 </head>
 
-<body>
-    <h1>Lotto</h1>
+<body class="min-h-screen bg-slate-950 font-body text-slate-100 antialiased selection:bg-swiss-red/40">
 
-    <main>
-        <!-- Number Choosing -->
-        <div class="chooseNumber">
-            <h2>Please choose 6 out of 49</h2>
-            <button onclick="lottoNumber(1)">1</button>
-            <button onclick="lottoNumber(2)">2</button>
-            <button onclick="lottoNumber(3)">3</button>
-            <button onclick="lottoNumber(4)">4</button>
-            <button onclick="lottoNumber(5)">5</button>
-            <button onclick="lottoNumber(6)">6</button>
-            <button onclick="lottoNumber(7)">7</button>
-            <button onclick="lottoNumber(8)">8</button>
-            <button onclick="lottoNumber(9)">9</button>
-            <button onclick="lottoNumber(10)">10</button>
-            <button onclick="lottoNumber(11)">11</button>
-            <button onclick="lottoNumber(12)">12</button>
-            <button onclick="lottoNumber(13)">13</button>
-            <button onclick="lottoNumber(14)">14</button>
-            <button onclick="lottoNumber(15)">15</button>
-            <button onclick="lottoNumber(16)">16</button>
-            <button onclick="lottoNumber(17)">17</button>
-            <button onclick="lottoNumber(18)">18</button>
-            <button onclick="lottoNumber(19)">19</button>
-            <button onclick="lottoNumber(20)">20</button>
-            <button onclick="lottoNumber(21)">21</button>
-            <button onclick="lottoNumber(22)">22</button>
-            <button onclick="lottoNumber(23)">23</button>
-            <button onclick="lottoNumber(24)">24</button>
-            <button onclick="lottoNumber(25)">25</button>
-            <button onclick="lottoNumber(26)">26</button>
-            <button onclick="lottoNumber(27)">27</button>
-            <button onclick="lottoNumber(28)">28</button>
-            <button onclick="lottoNumber(29)">29</button>
-            <button onclick="lottoNumber(30)">30</button>
-            <button onclick="lottoNumber(31)">31</button>
-            <button onclick="lottoNumber(32)">32</button>
-            <button onclick="lottoNumber(33)">33</button>
-            <button onclick="lottoNumber(34)">34</button>
-            <button onclick="lottoNumber(35)">35</button>
-            <button onclick="lottoNumber(36)">36</button>
-            <button onclick="lottoNumber(37)">37</button>
-            <button onclick="lottoNumber(38)">38</button>
-            <button onclick="lottoNumber(39)">39</button>
-            <button onclick="lottoNumber(40)">40</button>
-            <button onclick="lottoNumber(41)">41</button>
-            <button onclick="lottoNumber(42)">42</button>
-            <button onclick="lottoNumber(43)">43</button>
-            <button onclick="lottoNumber(44)">44</button>
-            <button onclick="lottoNumber(45)">45</button>
-            <button onclick="lottoNumber(46)">46</button>
-            <button onclick="lottoNumber(47)">47</button>
-            <button onclick="lottoNumber(48)">48</button>
-            <button onclick="lottoNumber(49)">49</button>
+    <!-- Ambient background glow -->
+    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div class="absolute -top-40 left-1/2 h-[36rem] w-[36rem] -translate-x-1/2 rounded-full bg-swiss-red/20 blur-[120px]"></div>
+        <div class="absolute bottom-0 right-0 h-[28rem] w-[28rem] rounded-full bg-indigo-600/10 blur-[120px]"></div>
+    </div>
+
+    <!-- ===================== Header ===================== -->
+    <header class="sticky top-0 z-30 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+            <div class="flex items-center gap-3">
+                <div class="grid h-10 w-10 place-items-center rounded-xl bg-swiss-red shadow-lg shadow-swiss-red/40">
+                    <span class="text-2xl font-bold leading-none text-white">+</span>
+                </div>
+                <div>
+                    <h1 class="font-display text-xl font-bold leading-none tracking-wide sm:text-2xl">SWISS&nbsp;LOTTO</h1>
+                    <p class="text-[11px] font-medium uppercase tracking-[0.3em] text-slate-400">6 aus 49</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="hidden text-right sm:block">
+                    <p class="text-[10px] font-semibold uppercase tracking-widest text-gold/80">Jackpot</p>
+                    <p id="jackpot" class="font-display text-xl font-bold tabular-nums text-gold sm:text-2xl">CHF&nbsp;0</p>
+                </div>
+                <button id="muteBtn" type="button" title="Toggle sound"
+                    class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-lg transition hover:bg-white/10">
+                    🔊
+                </button>
+            </div>
         </div>
+    </header>
 
-        <!-- Number Bet -->
-        <div class="numberBet">
-            <h2>Your bets</h2>
+    <main class="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-2 lg:py-10">
 
-            <div id="myBets"></div>
+        <!-- ===================== Ticket ===================== -->
+        <section class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900/80 to-slate-900/40 p-5 shadow-2xl sm:p-7">
+            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-swiss-red via-gold to-swiss-red"></div>
 
-            <h2>Winners</h2>
+            <div class="mb-5 flex items-end justify-between">
+                <div>
+                    <h2 class="font-display text-2xl font-bold tracking-wide">Your Ticket</h2>
+                    <p class="text-sm text-slate-400">Pick <span class="font-semibold text-slate-200">6</span> lucky numbers</p>
+                </div>
+                <div class="text-right">
+                    <p id="remaining" class="font-display text-3xl font-bold tabular-nums text-gold">6</p>
+                    <p class="text-[11px] uppercase tracking-widest text-slate-400">remaining</p>
+                </div>
+            </div>
 
-            <div id="winners"></div>
-        </div>
+            <!-- Selection progress -->
+            <div class="mb-5 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                <div id="progress" class="h-full w-0 rounded-full bg-gradient-to-r from-swiss-red to-gold transition-all duration-300"></div>
+            </div>
+
+            <!-- Number grid (rendered by JS) -->
+            <div id="numberGrid"
+                class="grid grid-cols-7 gap-1.5 sm:gap-2.5"
+                role="group" aria-label="Choose 6 numbers from 1 to 49"></div>
+
+            <!-- Controls -->
+            <div class="mt-6 flex flex-wrap items-center gap-3">
+                <button id="quickPick" type="button"
+                    class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold transition hover:bg-white/10">
+                    🎲 Quick Pick
+                </button>
+                <button id="clearBtn" type="button"
+                    class="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold transition hover:bg-white/10 disabled:opacity-40"
+                    disabled>
+                    Clear
+                </button>
+                <div class="ml-auto text-right">
+                    <p class="text-[11px] uppercase tracking-widest text-slate-400">Stake</p>
+                    <p class="font-display text-lg font-bold tabular-nums">CHF&nbsp;2.50</p>
+                </div>
+            </div>
+
+            <button id="playBtn" type="button" disabled
+                class="mt-5 w-full rounded-2xl bg-gradient-to-r from-swiss-red to-swiss-dark px-6 py-4 font-display text-lg font-bold uppercase tracking-widest text-white shadow-lg shadow-swiss-red/30 transition enabled:hover:brightness-110 enabled:active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-40">
+                Play — Start the Draw
+            </button>
+            <p id="hint" class="mt-2 text-center text-xs text-slate-500">Select 6 numbers to enable the draw.</p>
+        </section>
+
+        <!-- ===================== Machine + Results ===================== -->
+        <section class="flex flex-col gap-6">
+
+            <!-- Lottery machine -->
+            <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900/80 to-slate-900/40 p-5 shadow-2xl sm:p-7">
+                <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-swiss-red via-gold to-swiss-red"></div>
+
+                <div class="mb-4 flex items-center justify-between">
+                    <h2 class="font-display text-2xl font-bold tracking-wide">The Draw</h2>
+                    <span id="drawStatus" class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300">Idle</span>
+                </div>
+
+                <!-- machine stage (positioning context for the flying ball) -->
+                <div id="machineStage" class="relative mx-auto flex flex-col items-center">
+                    <div id="drum" class="lotto-drum">
+                        <div id="drumBalls" class="lotto-drum__balls"></div>
+                        <div class="lotto-drum__glass"></div>
+                        <div class="lotto-drum__rim"></div>
+                    </div>
+                    <div class="lotto-tube"></div>
+                    <div class="lotto-base"></div>
+                </div>
+
+                <!-- Result slots -->
+                <div class="mt-6">
+                    <p class="mb-2 text-center text-[11px] uppercase tracking-[0.3em] text-slate-400">Winning Numbers</p>
+                    <div id="resultSlots" class="flex flex-wrap items-center justify-center gap-2 sm:gap-3"></div>
+                </div>
+            </div>
+
+            <!-- Prize table -->
+            <div class="rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900/80 to-slate-900/40 p-5 shadow-2xl sm:p-7">
+                <h2 class="mb-4 font-display text-xl font-bold tracking-wide">Prize Table</h2>
+                <div id="prizeTable" class="space-y-1.5 text-sm"></div>
+            </div>
+        </section>
     </main>
 
-    <button id="tryagain" onclick="refreshPage()">Try again?</button>
+    <!-- ===================== Result Modal ===================== -->
+    <div id="resultModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
+        <div id="resultCard"
+            class="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-slate-900 p-8 text-center shadow-2xl">
+            <div id="resultAccent" class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-swiss-red via-gold to-swiss-red"></div>
+            <p id="resultEmoji" class="text-5xl">🎉</p>
+            <h3 id="resultTitle" class="mt-3 font-display text-3xl font-bold tracking-wide">You Won!</h3>
+            <p id="resultTier" class="mt-1 text-sm uppercase tracking-widest text-slate-400">Match 3</p>
+            <p id="resultAmount" class="mt-4 font-display text-4xl font-bold tabular-nums text-gold">CHF 0</p>
+
+            <div id="resultMatches" class="mt-6 flex flex-wrap items-center justify-center gap-2"></div>
+
+            <button id="playAgain" type="button"
+                class="mt-7 w-full rounded-2xl bg-gradient-to-r from-swiss-red to-swiss-dark px-6 py-3.5 font-display text-base font-bold uppercase tracking-widest text-white shadow-lg shadow-swiss-red/30 transition hover:brightness-110 active:scale-[.99]">
+                Play Again
+            </button>
+        </div>
+    </div>
 
     <script src="js/main.js"></script>
 </body>
